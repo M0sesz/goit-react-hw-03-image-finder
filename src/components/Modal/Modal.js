@@ -50,4 +50,4 @@ Modal.propTypes = {
   selectedImage: PropTypes.string,
 };
 
-export default ImageModal;
+export default Modal;
