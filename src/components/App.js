@@ -13,6 +13,7 @@ class App extends Component {
     currentPage: 1,
     isLoading: false,
     selectedImage: null,
+    hasMoreImages: true,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,6 +60,7 @@ class App extends Component {
       .then(response => {
         this.setState(prevState => ({
           images: [...prevState.images, ...response.data.hits],
+          hasMoreImages: response.data.hits > 0,
         }));
       })
       .catch(error => console.error(error))
