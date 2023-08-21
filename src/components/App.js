@@ -21,7 +21,7 @@ class App extends Component {
     const { query: currentQuery } = this.state;
 
     if (prevQuery !== currentQuery) {
-      this.setState({ images: [], currentPage: 1 }, () => {
+      this.setState({ images: [], currentPage: 1, hasMoreImages: true }, () => {
         this.fetchImages();
       });
     } else if (prevState.currentPage !== this.state.currentPage) {
@@ -58,9 +58,10 @@ class App extends Component {
     axios
       .get(apiUrl)
       .then(response => {
+        const newImages = response.data.hits;
         this.setState(prevState => ({
-          images: [...prevState.images, ...response.data.hits],
-          hasMoreImages: response.data.hits > 0,
+          images: [...prevState.images, ...newImages],
+          hasMoreImages: newImages.length > 0,
         }));
       })
       .catch(error => console.error(error))
@@ -70,7 +71,7 @@ class App extends Component {
   };
 
   render() {
-    const { images, isLoading, selectedImage } = this.state;
+    const { images, isLoading, selectedImage, hasMoreImages } = this.state;
 
     return (
       <div>
@@ -78,7 +79,7 @@ class App extends Component {
         <ImageGallery images={images} onItemClick={this.handleImageClick} />
         {isLoading && <Loader />}
         {images.length > 0 && !isLoading && (
-          <Button onClick={this.handleLoadMore} />
+          <Button onClick={this.handleLoadMore} hasMoreImages={hasMoreImages} />
         )}
 
         <Modal
