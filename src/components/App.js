@@ -13,7 +13,7 @@ class App extends Component {
     currentPage: 1,
     isLoading: false,
     selectedImage: null,
-    hasMoreImages: true,
+    totalPages: 0,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -21,7 +21,7 @@ class App extends Component {
     const { query: currentQuery } = this.state;
 
     if (prevQuery !== currentQuery) {
-      this.setState({ images: [], currentPage: 1, hasMoreImages: true }, () => {
+      this.setState({ images: [], currentPage: 1, totalPages: 0 }, () => {
         this.fetchImages();
       });
     } else if (prevState.currentPage !== this.state.currentPage) {
@@ -58,10 +58,10 @@ class App extends Component {
     axios
       .get(apiUrl)
       .then(response => {
-        const newImages = response.data.hits;
+        const { hits, totalHits } = response.data;
         this.setState(prevState => ({
-          images: [...prevState.images, ...newImages],
-          hasMoreImages: newImages.length > 0,
+          images: [...prevState.images, ...hits],
+          totalPages: Math.ceil(totalHits / 12),
         }));
       })
       .catch(error => console.error(error))
@@ -71,15 +71,16 @@ class App extends Component {
   };
 
   render() {
-    const { images, isLoading, selectedImage, hasMoreImages } = this.state;
+    const { images, isLoading, selectedImage, currentPage, totalPages } =
+      this.state;
 
     return (
       <div>
         <Searchbar onSubmit={this.handleSearchSubmit} />
         <ImageGallery images={images} onItemClick={this.handleImageClick} />
         {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && (
-          <Button onClick={this.handleLoadMore} hasMoreImages={hasMoreImages} />
+        {images.length > 0 && !isLoading && currentPage < totalPages && (
+          <Button onClick={this.handleLoadMore} />
         )}
 
         <Modal
